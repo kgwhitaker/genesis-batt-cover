@@ -40,13 +40,20 @@ main_body_width_y = 128;
 
 main_body_depth_x = 37;
 
-// 
+// Distance from the short edge of the cover to the first hole edge.
+left_hole_edge_distance_y = 15;
+
+// Distance from the long edge (bottom) to the left hole edge.
+left_hole_edge_distance_x = 7;
+
+// Distance between each peg hole from edge to edge
+peg_hole_distance_y = 51.6;
+
+// Overall thickness of the battery terminal cover. 
 cover_thickness = 2;
 
 // Zip tie size 
 zip_tie_size = 5;
-
-
 
 // *** "Private" variables ***
 /* [Hidden] */
@@ -55,15 +62,28 @@ zip_tie_size = 5;
 $fa = 1;
 $fs = 0.4;
 
+// Overlap tolerance for objects
+tol = .01;
+
 //
 // Creates the terminal cover body.
 //
 module cover_body() {
 
   difference() {
+    // , anchor=[-1,-1,0] = positive coordinates.
     cuboid(size=[main_body_depth_x, main_body_width_y, cover_thickness]);
 
-    cyl(d=peg_hole_diameter,l=cover_thickness);
+    // Position the left hole from the edge.
+    y_pos_left = -(main_body_width_y / 2) + (peg_hole_diameter / 2) + left_hole_edge_distance_y;
+    translate([0, y_pos_left, 0])
+      cyl(d=peg_hole_diameter, l=cover_thickness + tol);
+
+    // Position the right hole on the same x position, but separated in the y direction as specified.
+    y_pos_right = y_pos_left + peg_hole_distance_y + (peg_hole_diameter);
+    translate([0, y_pos_right, 0])
+      cyl(d=peg_hole_diameter, l=cover_thickness + tol);
+
   }
 }
 
