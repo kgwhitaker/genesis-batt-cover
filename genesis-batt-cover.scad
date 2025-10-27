@@ -40,6 +40,12 @@ main_body_width_y = 128;
 
 main_body_depth_x = 37;
 
+// Notch width for the positive terminal connector in y direction.
+pos_term_notch_y = 28;
+
+// Notch depth for the positive terminal connector in x direction.
+pos_term_notch_x = 21;
+
 // Distance from the short edge of the cover to the first hole edge.
 left_hole_edge_distance_y = 15;
 
@@ -47,7 +53,7 @@ left_hole_edge_distance_y = 15;
 left_hole_edge_distance_x = 7;
 
 // Distance between each peg hole from edge to edge
-peg_hole_distance_y = 51.6;
+peg_hole_distance_y = 52.7;
 
 // Overall thickness of the battery terminal cover. 
 cover_thickness = 2;
@@ -66,24 +72,42 @@ $fs = 0.4;
 tol = .01;
 
 //
+// Creates the peg holes
+//
+module peg_holes() {
+
+  x_pos = -(main_body_depth_x / 2) + left_hole_edge_distance_x + (peg_hole_diameter / 2);
+
+  // Position the left hole from the edge.
+  y_pos_left = -(main_body_width_y / 2) + (peg_hole_diameter / 2) + left_hole_edge_distance_y;
+  translate([x_pos, y_pos_left, 0])
+    cyl(d=peg_hole_diameter, l=cover_thickness + tol);
+
+  // Position the right hole on the same x position, but separated in the y direction as specified.
+  y_pos_right = y_pos_left + peg_hole_distance_y + (peg_hole_diameter);
+  translate([x_pos, y_pos_right, 0])
+    cyl(d=peg_hole_diameter, l=cover_thickness + tol);
+}
+
+//
+// Notch for the positive terminal OEM connector.
+//
+module pos_term_notch() {
+
+  translate([(main_body_depth_x / 2) - (pos_term_notch_x / 2), (main_body_width_y / 2 - (pos_term_notch_y / 2)), 0])
+    cuboid(size=[pos_term_notch_x + tol, pos_term_notch_y + tol, cover_thickness + tol]);
+}
+
+//
 // Creates the terminal cover body.
 //
 module cover_body() {
 
   difference() {
-    // , anchor=[-1,-1,0] = positive coordinates.
     cuboid(size=[main_body_depth_x, main_body_width_y, cover_thickness]);
 
-    // Position the left hole from the edge.
-    y_pos_left = -(main_body_width_y / 2) + (peg_hole_diameter / 2) + left_hole_edge_distance_y;
-    translate([0, y_pos_left, 0])
-      cyl(d=peg_hole_diameter, l=cover_thickness + tol);
-
-    // Position the right hole on the same x position, but separated in the y direction as specified.
-    y_pos_right = y_pos_left + peg_hole_distance_y + (peg_hole_diameter);
-    translate([0, y_pos_right, 0])
-      cyl(d=peg_hole_diameter, l=cover_thickness + tol);
-
+    peg_holes();
+    pos_term_notch();
   }
 }
 
