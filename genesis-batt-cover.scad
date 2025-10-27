@@ -36,24 +36,24 @@ include <BOSL2/std.scad>
 peg_hole_diameter = 7.8;
 
 // Main Body width before cutouts
-main_body_width_y = 128;
+main_body_depth_y = 37;
 
-main_body_depth_x = 37;
+main_body_width_x = 128;
 
 // Notch width for the positive terminal connector in y direction.
-pos_term_notch_y = 28;
+pos_term_notch_y = 16;
 
 // Notch depth for the positive terminal connector in x direction.
-pos_term_notch_x = 21;
+pos_term_notch_x = 28;
 
 // Distance from the short edge of the cover to the first hole edge.
-left_hole_edge_distance_y = 15;
+left_hole_edge_distance_x = 15;
 
-// Distance from the long edge (bottom) to the left hole edge.
-left_hole_edge_distance_x = 7;
+// Distance from the long edge (front y-) to the peg hole edges.
+peg_hole_edge_distance_y = 7;
 
 // Distance between each peg hole from edge to edge
-peg_hole_distance_y = 52.7;
+peg_hole_distance_x = 52.7;
 
 // Overall thickness of the battery terminal cover. 
 cover_thickness = 2;
@@ -69,23 +69,26 @@ $fa = 1;
 $fs = 0.4;
 
 // Overlap tolerance for objects
-tol = .01;
+tol = .02;
 
 //
 // Creates the peg holes
 //
 module peg_holes() {
 
-  x_pos = -(main_body_depth_x / 2) + left_hole_edge_distance_x + (peg_hole_diameter / 2);
+  // x_pos = -(main_body_width_x / 2) + left_hole_edge_distance_x + (peg_hole_diameter / 2);
 
   // Position the left hole from the edge.
-  y_pos_left = -(main_body_width_y / 2) + (peg_hole_diameter / 2) + left_hole_edge_distance_y;
-  translate([x_pos, y_pos_left, 0])
+  x_pos_left = -(main_body_width_x / 2) + (peg_hole_diameter / 2) + left_hole_edge_distance_x;
+
+  y_pos = -(main_body_depth_y / 2) + (peg_hole_diameter / 2) + peg_hole_edge_distance_y;
+
+  translate([x_pos_left, y_pos, 0])
     cyl(d=peg_hole_diameter, l=cover_thickness + tol);
 
-  // Position the right hole on the same x position, but separated in the y direction as specified.
-  y_pos_right = y_pos_left + peg_hole_distance_y + (peg_hole_diameter);
-  translate([x_pos, y_pos_right, 0])
+  // Position the right hole on the same y position, but separated in the x direction as specified.
+  x_pos_right = x_pos_left + peg_hole_diameter + peg_hole_distance_x;
+  translate([x_pos_right, y_pos, 0])
     cyl(d=peg_hole_diameter, l=cover_thickness + tol);
 }
 
@@ -94,7 +97,9 @@ module peg_holes() {
 //
 module pos_term_notch() {
 
-  translate([(main_body_depth_x / 2) - (pos_term_notch_x / 2), (main_body_width_y / 2 - (pos_term_notch_y / 2)), 0])
+  // translate([(main_body_width_x / 2) - (pos_term_notch_x / 2), (main_body_depth_y / 2 - (pos_term_notch_y / 2)), 0])
+
+    translate([(pos_term_notch_x / 2) - (main_body_width_x / 2),((main_body_depth_y / 2) - (pos_term_notch_y / 2)),0])
     cuboid(size=[pos_term_notch_x + tol, pos_term_notch_y + tol, cover_thickness + tol]);
 }
 
@@ -104,9 +109,9 @@ module pos_term_notch() {
 module cover_body() {
 
   difference() {
-    cuboid(size=[main_body_depth_x, main_body_width_y, cover_thickness]);
-
+    cuboid(size=[main_body_width_x, main_body_depth_y, cover_thickness]);
     peg_holes();
+
     pos_term_notch();
   }
 }
