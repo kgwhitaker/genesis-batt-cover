@@ -38,7 +38,7 @@ peg_hole_diameter = 7.8;
 // Main Body width before cutouts
 main_body_depth_y = 48;
 
-main_body_width_x = 128;
+main_body_width_x = 100;
 
 // Notch width for the positive terminal connector in y direction.
 // pos_term_notch_y = 16;
@@ -64,6 +64,9 @@ peg_stand_off_y = 22;
 // Overall thickness of the battery terminal cover. 
 cover_thickness = 2;
 
+// Length of the wire chase.
+wire_chase_x = 30;
+
 // Zip tie size 
 zip_tie_size = 5;
 
@@ -75,7 +78,7 @@ $fa = 1;
 $fs = 0.4;
 
 // Overlap tolerance for objects
-tol = .02;
+tol = .01;
 
 //
 // Creates the peg holes
@@ -88,7 +91,7 @@ module peg_holes() {
 
   peg_hole_z = cover_thickness + peg_stand_off_z + tol;
 
-  z_pos = -(peg_hole_z / 2) + cover_thickness / 2;
+  z_pos = -(peg_hole_z / 2) + (cover_thickness / 2) + tol;
 
   translate([x_pos_left, y_pos, z_pos])
     cyl(d=peg_hole_diameter, l=peg_hole_z);
@@ -112,16 +115,35 @@ module pos_term_notch() {
 // Creates the terminal cover body.
 //
 module cover_body() {
-  translate([pos_term_notch_x / 2,0,0])
-  cuboid(size=[main_body_width_x - pos_term_notch_x, main_body_depth_y, cover_thickness], rounding=1, except=BOT);
+  translate([pos_term_notch_x / 2, 0, 0])
+    cuboid(size=[main_body_width_x - pos_term_notch_x, main_body_depth_y, cover_thickness], rounding=1, except=BOT);
 }
 
 // 
 // Creates the peg hole standoffs that raises the body above the positive terminal studs.
 //
 module peg_stand_off() {
-  translate([0, -(main_body_depth_y / 2) + (peg_stand_off_y / 2), -((peg_stand_off_z / 2)) + (cover_thickness / 2)])
-    color("red") cuboid(size=[main_body_width_x, peg_stand_off_y, peg_stand_off_z], rounding = 1, except=[BOT]);
+  translate([0, -(main_body_depth_y / 2) + (peg_stand_off_y / 2), -( (peg_stand_off_z / 2) ) + (cover_thickness / 2)])
+    cuboid(size=[main_body_width_x, peg_stand_off_y, peg_stand_off_z], rounding=1, except=[BOT]);
+}
+
+//
+// Wire chase for the exit wires with a notch for a zip tie.
+//
+module wire_chase() {
+  chase_y = main_body_depth_y - peg_stand_off_y;
+  x_pos = (pos_term_notch_x / 2) + (main_body_width_x / 2);
+
+  difference() {
+    translate([x_pos, (main_body_depth_y / 2) - (chase_y / 2), 0])
+      cuboid(size=[wire_chase_x, chase_y, cover_thickness], rounding=1, except=[BOT, LEFT]);
+
+    translate([x_pos, -cover_thickness, 0])
+      cuboid(size=[zip_tie_size, cover_thickness, cover_thickness + tol]);
+    
+    translate([x_pos, chase_y-cover_thickness, 0])
+      cuboid(size=[zip_tie_size, cover_thickness, cover_thickness + tol]);
+  }
 }
 
 //
@@ -135,11 +157,8 @@ module build_model() {
     }
 
     peg_holes();
-
-    pos_term_notch();
   }
 
-      // peg_holes();
-
+  wire_chase();
 }
 build_model();
