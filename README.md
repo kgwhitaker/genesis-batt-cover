@@ -17,7 +17,7 @@ When doing some electrical work on my Jeep Wrangler JLU, I decided to install th
 
 ![Battery Cover Bottom](batt-cover-bottom.jpeg)
 
-## Dependencies and Using the Component
+## Dependencies and Customizing the Model
 
 This model is built using the tools listed below and must be installed in order to customize the model.
 
